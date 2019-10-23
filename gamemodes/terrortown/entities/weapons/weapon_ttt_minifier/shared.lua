@@ -2,7 +2,10 @@ if SERVER then
     AddCSLuaFile()
 
     resource.AddFile('sound/minifier_shrink.wav')
+
     resource.AddFile('materials/vgui/ttt/icon_minifier')
+    resource.AddFile('materials/vgui/ttt/hud_icon_minified.png')
+    resource.AddFile('materials/vgui/ttt/hud_icon_minify_disabled.png')
 end
 
 SWEP.Base = 'weapon_tttbase'
@@ -63,13 +66,46 @@ SWEP.NoSights = true
 if SERVER then
     util.AddNetworkString('ttt2_minifier_update_state')
 
+    local function SetUpMinifyTimeouts(ply)
+        local time = GetConVar('ttt_minifier_use_time'):GetInt()
+
+        STATUS:AddTimedStatus(ply, 'ttt2_minifier_active', time, true)
+
+        ply.minifier_active_timer_id = 'minifier_active_timer_' .. tostring(CurTime())
+
+        timer.Create(ply.minifier_active_timer_id, time, 1, function()
+            if not ply or not IsValid(ply) then return end
+
+            UnMinifyPlayer(ply)
+        end)
+    end
+
+    local function SetUpUnMinifyTimeouts(ply)
+        local time = GetConVar('ttt_minifier_cooldown_time'):GetInt()
+
+        STATUS:RemoveStatus(ply, 'ttt2_minifier_active')
+        STATUS:AddTimedStatus(ply, 'ttt2_minifier_cooldown', time, true)
+
+        timer.Remove(ply.minifier_active_timer_id)
+
+        ply.minifier_cooldown_timer_id = 'minifier_cooldown_timer_' .. tostring(CurTime())
+        ply.minify_cooldown = true
+
+        timer.Create(ply.minifier_cooldown_timer_id, time, 1, function()
+            if not ply or not IsValid(ply) then return end
+
+            STATUS:RemoveStatus(ply, 'ttt2_minifier_cooldown')
+            ply.minify_cooldown = false
+        end)
+    end
+
     function MinifyPlayer(ply)
         if not ply or not IsValid(ply) then return end
         if ply.minified then return end
 
         ply.minified = true
         net.Start('ttt2_minifier_update_state')
-        net.WriteBool(treue)
+        net.WriteBool(true)
         net.Send(ply)
 
         ply:SetHealth(ply:Health() * 0.5)
@@ -89,6 +125,8 @@ if SERVER then
         local hull_min_ducked, hull_max_ducked = ply:GetHullDuck()
         hull_max_ducked.z = hull_max_ducked.z * 0.5
         ply:SetHullDuck(hull_min_ducked, hull_max_ducked)
+
+        SetUpMinifyTimeouts(ply)
     end
 
     function UnMinifyPlayer(ply)
@@ -111,6 +149,8 @@ if SERVER then
         ply:SetGravity(1)
 
         ply:ResetHull()
+
+        SetUpUnMinifyTimeouts(ply)
     end
 
     function ToggleMinifyPlayer(ply)
@@ -130,6 +170,8 @@ if SERVER then
     end
 
     function SWEP:PrimaryAttack()
+        if self.Owner.minify_cooldown then return end
+
         self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
     
         ToggleMinifyPlayer(self.Owner)
@@ -155,11 +197,22 @@ if CLIENT then
         client.minified = net.ReadBool()
         client:EmitSound('minifing_player', 80)
     end)
+
+    hook.Add('Initialize', 'ttt2_dancegun_status_init', function() 
+        STATUS:RegisterStatus('ttt2_minifier_active', {
+            hud = Material('vgui/ttt/hud_icon_minified.png'),
+            type = 'good'
+        })
+        STATUS:RegisterStatus('ttt2_minifier_cooldown', {
+            hud = Material('vgui/ttt/hud_icon_minify_disabled.png'),
+            type = 'bad'
+        })
+    end)
 end
 
 hook.Add('TTTPlayerSpeedModifier', 'ttt2_minifier_speed' , function(ply, _, _, noLag)
     if not ply or not IsValid(ply) then return end
     if not ply.minified then return end
 
-    noLag[1] = noLag[1] * 0.75
+    noLag[1] = noLag[1] * 0.5
 end)
