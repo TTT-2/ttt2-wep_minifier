@@ -108,22 +108,22 @@ if SERVER then
         net.WriteBool(true)
         net.Send(ply)
 
-        ply:SetHealth(ply:Health() * 0.5)
-        ply:SetMaxHealth(ply:GetMaxHealth() * 0.5)
+        ply:SetHealth(ply:Health() * GetGlobalFloat('ttt_minifier_factor'))
+        ply:SetMaxHealth(ply:GetMaxHealth() * GetGlobalFloat('ttt_minifier_factor'))
 
-        ply:SetStepSize(ply:GetStepSize() * 0.5)
-        ply:SetModelScale(ply:GetModelScale() * 0.5, 0.5)
-        ply:SetViewOffset(ply:GetViewOffset() * 0.5)
-        ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * 0.5)
+        ply:SetStepSize(ply:GetStepSize() * GetGlobalFloat('ttt_minifier_factor'))
+        ply:SetModelScale(ply:GetModelScale() * GetGlobalFloat('ttt_minifier_factor'), 0.5)
+        ply:SetViewOffset(ply:GetViewOffset() * GetGlobalFloat('ttt_minifier_factor'))
+        ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetGlobalFloat('ttt_minifier_factor'))
 
         ply:SetGravity(1.75)
 
         local hull_min, hull_max = ply:GetHull()
-        hull_max.z = hull_max.z * 0.5
+        hull_max.z = hull_max.z * GetGlobalFloat('ttt_minifier_factor')
         ply:SetHull(hull_min, hull_max)
 
         local hull_min_ducked, hull_max_ducked = ply:GetHullDuck()
-        hull_max_ducked.z = hull_max_ducked.z * 0.5
+        hull_max_ducked.z = hull_max_ducked.z * GetGlobalFloat('ttt_minifier_factor')
         ply:SetHullDuck(hull_min_ducked, hull_max_ducked)
 
         SetUpMinifyTimeouts(ply)
@@ -138,13 +138,13 @@ if SERVER then
         net.WriteBool(false)
         net.Send(ply)
 
-        ply:SetHealth(ply:Health() * 2)
-        ply:SetMaxHealth(ply:GetMaxHealth() * 2)
+        ply:SetHealth(ply:Health() * GetGlobalFloat('ttt_minifier_factor_inv'))
+        ply:SetMaxHealth(ply:GetMaxHealth() * GetGlobalFloat('ttt_minifier_factor_inv'))
 
-        ply:SetModelScale(ply:GetModelScale() * 2, 0.5)
-        ply:SetStepSize(ply:GetStepSize() * 2)
-        ply:SetViewOffset(ply:GetViewOffset() * 2)
-        ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * 2)
+        ply:SetModelScale(ply:GetModelScale() * GetGlobalFloat('ttt_minifier_factor_inv'), 0.5)
+        ply:SetStepSize(ply:GetStepSize() * GetGlobalFloat('ttt_minifier_factor_inv'))
+        ply:SetViewOffset(ply:GetViewOffset() * GetGlobalFloat('ttt_minifier_factor_inv'))
+        ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetGlobalFloat('ttt_minifier_factor_inv'))
 
         ply:SetGravity(1)
 
@@ -214,5 +214,5 @@ hook.Add('TTTPlayerSpeedModifier', 'ttt2_minifier_speed' , function(ply, _, _, n
     if not ply or not IsValid(ply) then return end
     if not ply.minified then return end
 
-    noLag[1] = noLag[1] * 0.5
+    noLag[1] = noLag[1] * GetGlobalFloat('ttt_minifier_factor')
 end)
