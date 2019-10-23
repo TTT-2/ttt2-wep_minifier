@@ -11,7 +11,7 @@ end)
 if SERVER then
     -- ConVar replication is broken in GMod, so we do this, at least Alf added a hook!
     -- I don't like it any more than you do, dear reader. Copycat!
-    hook.Add('TTT2SyncGlobals', 'ttt2_supersoda_sync_convars', function()
+    hook.Add('TTT2SyncGlobals', 'ttt2_minifier_sync_convars', function()
         SetGlobalFloat('ttt_minifier_factor', GetConVar('ttt_minifier_factor'):GetFloat())
         SetGlobalFloat('ttt_minifier_factor_inv', 1 / GetConVar('ttt_minifier_factor'):GetFloat())
     end)
