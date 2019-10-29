@@ -88,7 +88,9 @@ if SERVER then
         STATUS:RemoveStatus(ply, 'ttt2_minifier_active')
         STATUS:AddTimedStatus(ply, 'ttt2_minifier_cooldown', time, true)
 
-        timer.Remove(ply.minifier_active_timer_id)
+        if ply.minifier_active_timer_id then
+            timer.Remove(ply.minifier_active_timer_id)
+        end
 
         ply.minifier_cooldown_timer_id = 'minifier_cooldown_timer_' .. tostring(CurTime())
         ply.minify_cooldown = true
