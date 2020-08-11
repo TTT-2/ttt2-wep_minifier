@@ -91,6 +91,7 @@ if SERVER then
 			if not ply or not IsValid(ply) then return end
 
 			STATUS:RemoveStatus(ply, "ttt2_minifier_cooldown")
+
 			ply.minify_cooldown = false
 		end)
 	end
@@ -107,14 +108,14 @@ if SERVER then
 		net.Send(ply)
 
 		-- change player health when minified
-		ply:SetHealth(ply:Health() * GetGlobalFloat("ttt_minifier_factor"))
-		ply:SetMaxHealth(ply:GetMaxHealth() * GetGlobalFloat("ttt_minifier_factor"))
+		ply:SetHealth(ply:Health() * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetMaxHealth(ply:GetMaxHealth() * GetConVar("ttt_minifier_factor"):GetFloat())
 
 		-- change the model and first person view cam
-		ply:SetStepSize(ply:GetStepSize() * GetGlobalFloat("ttt_minifier_factor"))
-		ply:SetModelScale(ply:GetModelScale() * GetGlobalFloat("ttt_minifier_factor"), 0.5)
-		ply:SetViewOffset(ply:GetViewOffset() * GetGlobalFloat("ttt_minifier_factor"))
-		ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetGlobalFloat("ttt_minifier_factor"))
+		ply:SetStepSize(ply:GetStepSize() * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetModelScale(ply:GetModelScale() * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetViewOffset(ply:GetViewOffset() * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetConVar("ttt_minifier_factor"):GetFloat())
 
 		-- increase gravity to decrease jumpheight
 		ply:SetGravity(1.75)
@@ -123,11 +124,11 @@ if SERVER then
 		-- the player-player hitbox, not the player-prop hitbox
 		-- only the z direction is changed to prevent glitching in walls when walking close to walls
 		local hull_min, hull_max = ply:GetHull()
-		hull_max.z = hull_max.z * GetGlobalFloat("ttt_minifier_factor")
+		hull_max.z = hull_max.z * GetConVar("ttt_minifier_factor"):GetFloat()
 		ply:SetHull(hull_min, hull_max)
 
 		local hull_min_ducked, hull_max_ducked = ply:GetHullDuck()
-		hull_max_ducked.z = hull_max_ducked.z * GetGlobalFloat("ttt_minifier_factor")
+		hull_max_ducked.z = hull_max_ducked.z * GetConVar("ttt_minifier_factor"):GetFloat()
 		ply:SetHullDuck(hull_min_ducked, hull_max_ducked)
 
 		-- set timer to stop minier after a certain amount of time
@@ -147,14 +148,14 @@ if SERVER then
 		net.Send(ply)
 
 		-- reset the health of the player
-		ply:SetHealth(ply:Health() * GetGlobalFloat("ttt_minifier_factor_inv"))
-		ply:SetMaxHealth(ply:GetMaxHealth() * GetGlobalFloat("ttt_minifier_factor_inv"))
+		ply:SetHealth(ply:Health() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
+		ply:SetMaxHealth(ply:GetMaxHealth() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
 
 		-- reset player model
-		ply:SetModelScale(ply:GetModelScale() * GetGlobalFloat("ttt_minifier_factor_inv"), 0.5)
-		ply:SetStepSize(ply:GetStepSize() * GetGlobalFloat("ttt_minifier_factor_inv"))
-		ply:SetViewOffset(ply:GetViewOffset() * GetGlobalFloat("ttt_minifier_factor_inv"))
-		ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetGlobalFloat("ttt_minifier_factor_inv"))
+		ply:SetModelScale(ply:GetModelScale() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
+		ply:SetStepSize(ply:GetStepSize() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
+		ply:SetViewOffset(ply:GetViewOffset() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
+		ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
 
 		-- reset gravity
 		ply:SetGravity(1)
@@ -202,8 +203,10 @@ if SERVER then
 
 	-- make sure that all player models are reset in the next round
 	hook.Add("TTTPrepareRound", "ttt2_minifier_speed_reset_all", function()
-		for _, p in pairs(player.GetAll()) do
-			UnMinifyPlayer(p)
+		local plys = player.GetAll()
+
+		for i = 1, #plys do
+			UnMinifyPlayer(plys[i])
 		end
 	end)
 end
@@ -240,5 +243,5 @@ end
 hook.Add("TTTPlayerSpeedModifier", "ttt2_minifier_speed" , function(ply, _, _, noLag)
 	if not IsValid(ply) or not ply.minified then return end
 
-	noLag[1] = noLag[1] * GetGlobalFloat("ttt_minifier_factor")
+	noLag[1] = noLag[1] * GetConVar("ttt_minifier_factor"):GetFloat()
 end)
