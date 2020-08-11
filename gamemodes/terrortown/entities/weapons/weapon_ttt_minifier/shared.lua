@@ -107,18 +107,28 @@ if SERVER then
 		net.WriteBool(true)
 		net.Send(ply)
 
+		-- create original data table
+		local data = {
+			stepSize = ply:GetStepSize(),
+			modelScale = ply:GetModelScale(),
+			viewOffset = ply:GetViewOffset(),
+			viewOffsetDucked = ply:GetViewOffsetDucked()
+		}
+
+		ply.minifierData = data
+
 		-- change player health when minified
 		ply:SetHealth(ply:Health() * GetConVar("ttt_minifier_factor"):GetFloat())
 		ply:SetMaxHealth(ply:GetMaxHealth() * GetConVar("ttt_minifier_factor"):GetFloat())
 
 		-- change the model and first person view cam
-		ply:SetStepSize(ply:GetStepSize() * GetConVar("ttt_minifier_factor"):GetFloat())
-		ply:SetModelScale(ply:GetModelScale() * GetConVar("ttt_minifier_factor"):GetFloat())
-		ply:SetViewOffset(ply:GetViewOffset() * GetConVar("ttt_minifier_factor"):GetFloat())
-		ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetStepSize(data.stepSize * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetModelScale(data.modelScale * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetViewOffset(data.viewOffset * GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetViewOffsetDucked(data.viewOffsetDucked * GetConVar("ttt_minifier_factor"):GetFloat())
 
 		-- increase gravity to decrease jumpheight
-		ply:SetGravity(1.75)
+		ply:SetGravity(ply:GetGravity() * 1.75)
 
 		-- change the hull of the player, this is needed since the model scaling only affects
 		-- the player-player hitbox, not the player-prop hitbox
@@ -148,17 +158,17 @@ if SERVER then
 		net.Send(ply)
 
 		-- reset the health of the player
-		ply:SetHealth(ply:Health() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
-		ply:SetMaxHealth(ply:GetMaxHealth() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
+		ply:SetHealth(ply:Health() / GetConVar("ttt_minifier_factor"):GetFloat())
+		ply:SetMaxHealth(ply:GetMaxHealth() / GetConVar("ttt_minifier_factor"):GetFloat())
 
 		-- reset player model
-		ply:SetModelScale(ply:GetModelScale() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
-		ply:SetStepSize(ply:GetStepSize() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
-		ply:SetViewOffset(ply:GetViewOffset() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
-		ply:SetViewOffsetDucked(ply:GetViewOffsetDucked() * GetConVar("ttt_minifier_factor_inv"):GetFloat())
+		ply:SetModelScale(ply.minifierData.modelScale)
+		ply:SetStepSize(ply.minifierData.stepSize)
+		ply:SetViewOffset(ply.minifierData.viewOffset)
+		ply:SetViewOffsetDucked(ply.minifierData.viewOffsetDucked)
 
 		-- reset gravity
-		ply:SetGravity(1)
+		ply:SetGravity(ply:GetGravity() / 1.75)
 
 		-- reset player hitbox
 		ply:ResetHull()
