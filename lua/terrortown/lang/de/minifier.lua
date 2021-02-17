@@ -1,4 +1,4 @@
-L = LANG.GetLanguageTableReference("deutsch")
+L = LANG.GetLanguageTableReference("de")
 
 L["ttt2_weapon_minifier"] = "Verkleinerer"
 L["ttt2_weapon_minifier_desc"] = "Nutze dieses Item um deine Körpergröße zu verringern!"
