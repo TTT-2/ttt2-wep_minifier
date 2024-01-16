@@ -8,6 +8,10 @@ if SERVER then
 	resource.AddFile("materials/vgui/ttt/hud_icon_minify_disabled.png")
 end
 
+CreateConVar("ttt_minifier_use_time", 30, {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_minifier_cooldown_time", 10, {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+CreateConVar("ttt_minifier_factor", 0.5, {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED})
+
 SWEP.Base = "weapon_tttbase"
 
 if CLIENT then
@@ -255,3 +259,34 @@ hook.Add("TTTPlayerSpeedModifier", "ttt2_minifier_speed" , function(ply, _, _, n
 
 	noLag[1] = noLag[1] * GetConVar("ttt_minifier_factor"):GetFloat()
 end)
+
+
+if CLIENT then
+	function SWEP:AddToSettingsMenu(parent)
+		local form = vgui.CreateTTT2Form(parent, "header_equipment_additional")
+
+		form:MakeSlider({
+			label = "label_ttt_minifier_use_time",
+			serverConvar = "ttt_minifier_use_time",
+			min = 0,
+			max = 100,
+			decimal = 0
+		})
+
+		form:MakeSlider({
+			label = "label_ttt_minifier_cooldown_time",
+			serverConvar = "ttt_minifier_cooldown_time",
+			min = 0,
+			max = 100,
+			decimal = 0
+		})
+
+		form:MakeSlider({
+			label = "label_ttt_minifier_factor",
+			serverConvar = "ttt_minifier_factor",
+			min = 0.01,
+			max = 2,
+			decimal = 2
+		})
+	end
+end
