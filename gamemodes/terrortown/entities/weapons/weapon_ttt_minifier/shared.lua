@@ -201,18 +201,18 @@ if SERVER then
 
 	function SWEP:PrimaryAttack()
 		-- disable minifier when cooldown is active
-		if self.Owner.minify_cooldown then return end
+		if self:GetOwner().minify_cooldown then return end
 
 		-- set primary fire blocking time to prevent button spamming
 		self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 
 		-- minify player
-		ToggleMinifyPlayer(self.Owner)
+		ToggleMinifyPlayer(self:GetOwner())
 	end
 
 	-- stop minification when minifier is dropped
 	function SWEP:PreDrop()
-		UnMinifyPlayer(self.Owner)
+		UnMinifyPlayer(self:GetOwner())
 	end
 
 	-- make sure that all player models are reset in the next round
